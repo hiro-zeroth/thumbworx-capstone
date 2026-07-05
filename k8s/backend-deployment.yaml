@@ -28,6 +28,8 @@ spec:
               value: "mysql"
             - name: DB_PORT
               value: "3306"
+            - name: SESSION_DRIVER
+              value: "file"
             - name: DB_DATABASE
               valueFrom: { secretKeyRef: { name: thumbworx-db-secret, key: DB_DATABASE } }
             - name: DB_USERNAME
