@@ -6,10 +6,17 @@ data:
   default.conf: |
     server {
         listen 80;
+        root /var/www/public;
+        index index.php;
 
         location / {
-            proxy_pass http://backend:9000;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
+            try_files $uri $uri/ /index.php?$query_string;
+        }
+
+        location ~ \.php$ {
+            fastcgi_pass backend:9000;
+            fastcgi_index index.php;
+            fastcgi_param SCRIPT_FILENAME /var/www/public$fastcgi_script_name;
+            include fastcgi_params;
         }
     }
