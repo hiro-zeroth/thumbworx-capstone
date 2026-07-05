@@ -18,6 +18,8 @@ spec:
           imagePullPolicy: Never
           command: ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
           env:
+            - name: DB_CONNECTION
+              value: "mysql"
             - name: APP_ENV
               value: "production"
             - name: APP_DEBUG
