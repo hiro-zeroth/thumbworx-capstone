@@ -1,0 +1,17 @@
+# Terraform
+terraform/.terraform/
+**/.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl  
+
+# Python
+venv/
+
+# Node
+node_modules/
+.next/
+
+# Laravel
+vendor/
+.env

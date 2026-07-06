@@ -1,0 +1,90 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: project_starter_app
+    restart: unless-stopped
+    working_dir: /app
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: project_starter
+      DB_USERNAME: starter_user
+      DB_PASSWORD: starter_password
+      CACHE_DRIVER: file
+      QUEUE_CONNECTION: database
+    volumes:
+      - app_volume:/app
+      - app_storage_logs:/app/storage/logs
+      - app_bootstrap_cache:/app/bootstrap/cache
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - starter_network
+
+  mysql:
+    image: mysql:8.0
+    container_name: project_starter_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: project_starter
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root_password}
+      MYSQL_USER: starter_user
+      MYSQL_PASSWORD: starter_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - starter_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  nginx:
+    image: nginx:alpine
+    container_name: project_starter_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d:ro
+      - app_volume:/app:ro
+    depends_on:
+      - app
+    networks:
+      - starter_network
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: project_starter_phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: root
+      PMA_PASSWORD: ${DB_ROOT_PASSWORD:-root_password}
+    ports:
+      - "8001:80"
+    depends_on:
+      - mysql
+    networks:
+      - starter_network
+
+volumes:
+  app_volume:
+  app_storage_logs:
+  app_bootstrap_cache:
+  mysql_data:
+
+networks:
+  starter_network:
+    driver: bridge
