@@ -15,3 +15,9 @@ node_modules/
 # Laravel
 vendor/
 .env
+terraform.tfvars
+k8s/secrets.yaml
+*.tfstate
+*.tfstate.*
+.terraform/
+.env
